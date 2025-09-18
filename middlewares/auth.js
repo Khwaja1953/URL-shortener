@@ -8,6 +8,7 @@ async function checkAuthentication(req, res, next) {
 
   try {
     const user = getUser(token);
+    // console.log(user);
     req.user = user;
   } catch (err) {
     console.error("JWT error:", err.message);

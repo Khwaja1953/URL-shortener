@@ -3,7 +3,7 @@ const URL = require('../model/urlmodel');
 const { restrictTo } = require('../middlewares/auth');
 
 const router = express.Router();
-router.get('/admin/urls', restrictTo(["ADMIN"]),async (req, res) => {
+router.get('/admin/urls',restrictTo("ADMIN"),async (req, res) => {
     try {
       if (!req.user) return res.redirect("/login");
 
@@ -29,9 +29,10 @@ router.get('/admin/urls', restrictTo(["ADMIN"]),async (req, res) => {
 });
 router.get('/',restrictTo(["NORMAL","ADMIN"]), async (req, res) => {
     try {
+        // console.log(req.user);
       if (!req.user) return res.redirect("/login");
 
-        const allUrls=await URL.find({ createdBy: req.user._id });
+        const allUrls=await URL.find({createdBy: req.user._id });
 
         // Send a response only once
         return res.render("home", {

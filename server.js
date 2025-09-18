@@ -9,6 +9,7 @@ const staticRoute = require('./routes/staticRouter')
 const { checkAuthentication,restrictTo} = require("./middlewares/auth");
 
 
+
 dotenv.config();
 
 const app = express();

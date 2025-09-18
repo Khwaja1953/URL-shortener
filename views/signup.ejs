@@ -15,13 +15,15 @@
 
 <body>
     <h1>Signup</h1>
-    <form action="/user/createuser" method="post">
+    <form action="/user/createuser" method="post" enctype="multipart/form-data">
         <label>Username</label>
         <input type="text" required name="username">
         <label>Email</label>
         <input type="text" required name="email">
         <label>Password</label>
         <input type="text" required name="password">
+        <label>profile</label>
+        <input type="file" name="profileImage">
 
         <button type="submit">Signup</button>
     </form>
