@@ -1,6 +1,7 @@
 const User = require("../model/signupModel"); // avoid naming conflict
 const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
+require('dotenv').config();
 const { setUser} = require("../services/auth");
 
 
@@ -67,13 +68,13 @@ async function handleForgotPassword(req, res) {
     port: 465,
     secure: true,
     auth: {
-      user: "tikhw418@gmail.com",
-      pass: "cavubxniovmutwov", // App password
+      user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // App password
     },
   });
 
   const info = await transporter.sendMail({
-    from: "tikhw418@gmail.com",
+    from: process.env.EMAIL_USER,
     to: user.email,
     subject: "OTP for password reset",
     text: `Your OTP is ${otp}`,
