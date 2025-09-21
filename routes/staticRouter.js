@@ -60,6 +60,14 @@ router.get('/signup', (req, res) => {
 router.get('/login', (req, res) => {
     return res.render('login');
 });
-
+router.get('/forgotpassword', (req, res) => {
+    return res.render('forgotpassword');
+});
+router.get('/resetpassword', (req, res) => {
+    return res.render('resetpassword');
+});
+router.get('/verifyotp', (req, res) => {
+    return res.render('verifyotp');
+});
 
 module.exports = router
