@@ -6,6 +6,12 @@ const Schema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     role: { type: String, enum: ['ADMIN', 'NORMAL'], default: 'NORMAL' },
     profileImage: {type: String},
+    passwordResetToken: {
+        type: String,
+    },
+    passwordResetExpires: {
+        type: Date,
+    }
 
 });
 module.exports = mongoose.model('User', Schema)
