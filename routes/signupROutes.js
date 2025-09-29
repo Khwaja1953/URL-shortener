@@ -1,5 +1,5 @@
 const express = require('express');
-const { handleUserSignup, handleUserLogin, handleForgotPassword, handleVerifyOtp, handleResetPassword } = require('../controller/signupController');
+const { handleUserSignup, handleUserLogin, handleForgotPassword, handleVerifyOtp, handleResetPassword, handleSignupValidateOTP } = require('../controller/signupController');
 const router = express.Router();
 const multer = require("multer");
 // const upload = multer({ dest: './uploads' });
@@ -19,6 +19,7 @@ router.post('/createuser',upload.single('profileImage'), handleUserSignup);
 router.post('/loginuser', handleUserLogin)
 router.post('/forgotpassword', handleForgotPassword)
 router.post('/verifyotp', handleVerifyOtp);
-router.post('/resetpassword',handleResetPassword)
+router.post('/resetpassword',handleResetPassword);
+router.post('/signup/verify-otp', handleSignupValidateOTP);
 
 module.exports = router;

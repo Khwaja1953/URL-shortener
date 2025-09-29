@@ -1,5 +1,6 @@
 const Url = require('../model/urlmodel');
 const { nanoid } = require('nanoid');
+const logger = require("../services/log");
 
 
 
@@ -7,7 +8,7 @@ exports.createShortUrl = async (req, res) => {
     try {
         const { originalUrl } = req.body;
         const shortId = nanoid(6);
-
+        logger.http(`${req.method} ${req.url} - ${req.ip}`);
         await Url.create({ originalUrl: originalUrl, shortId: shortId ,createdBy: req.user._id});
 
         // Fetch all URLs again

@@ -1,0 +1,18 @@
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"http","message":"","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"http","message":"POST / - ::1","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during OTP validation: E11000 duplicate key error collection: urlshortener.users index: username_1 dup key: { username: \"khwaja\" }","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}

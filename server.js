@@ -7,6 +7,9 @@ const urlRoute = require('./routes/urlroutes');
 const signUproutes = require('./routes/signupROutes')
 const staticRoute = require('./routes/staticRouter')
 const { checkAuthentication,restrictTo} = require("./middlewares/auth");
+const logger = require('./services/log');
+const morgan = require('morgan');
+const fs = require('fs');
 
 
 
@@ -20,13 +23,20 @@ if (!MONGO_URI) {
     console.error('MONGO_URI missing from .env');
     process.exit(1);
 }
-
+logger.info('Application starting...');
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // required for form parsing
-app.use(checkAuthentication)
+app.use(checkAuthentication);
+
+const logDirectory = path.join(__dirname, 'log');
+fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
+const accessLogStream = fs.createWriteStream(path.join(logDirectory, 'access.log'), { flags: 'a' });
+const fileLoggerMiddleware = morgan('Method- :method URL- :url Status- :status ResponseTime- :response-time ms', { stream: accessLogStream });
+// app.use(morgan( 'Method- :method URL- :url Status- :status ResponseTime- :response-time ms'))
+app.use(fileLoggerMiddleware);
 
 app.use("/user", signUproutes,);
 

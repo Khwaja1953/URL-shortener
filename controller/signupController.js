@@ -4,27 +4,86 @@ const nodemailer = require("nodemailer");
 require('dotenv').config();
 const { setUser } = require("../services/auth");
 const jwt = require('jsonwebtoken');
+const logger = require('../services/log');
+
 
 
 async function handleUserSignup(req, res) {
-  const salt = bcrypt.genSaltSync(10);
-  const password = bcrypt.hashSync(req.body.password, salt);
-  // console.log(req.file);
+try{
   const { username, email } = req.body;
-  const profileImage = req.file.filename;
-  if (!username || !password || !email) {
+  const profile = req.file.filename;
+  // console.log(req.file);
+  if (!username  || !email || !profile) {
     return res.status(400).json({ error: "All fields are required" });
   }
-
-  await User.create({
-    username,
-    email,
-    password,
-    profileImage
+  const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for 465, false for other ports
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+let otp = Math.floor(1000 + Math.random() * 9000).toString();
+const info = await transporter.sendMail({
+    from: process.env.EMAIL_USER, // sender address
+    to: email,
+    subject: "OTP for password Reset",
+    text: `your otp is ${otp} please dont share it with anyone`, // plain‑text body
+    
   });
-  return res.redirect('/');
-
+    const salt = bcrypt.genSaltSync(10);
+  const password = bcrypt.hashSync(req.body.password, salt);
+  const hashedOtp = bcrypt.hashSync(otp, 10);
+  const authToken = jwt.sign({username,email,password,profile,hashedOtp},process.env.JWT_SECRET,{expiresIn:"10m"});
+  return res.render("signupValidateOtp.ejs",{authToken: authToken});
+}catch(err){
+  logger.error('Error during user signup: ' + err.message);
+  logger.warn("warning in singup", err)
+  return res.status(500).json({error: "Internal server error"});
 }
+}
+
+
+async function handleSignupValidateOTP(req,res){
+  try{
+  const {authToken, otp}= req.body;
+  // console.log(OTP)
+  if(!otp || !authToken){
+    return res.render("signupValidateOtp.ejs",{
+      error:"OTP and AuthToken are required"
+    })
+  }
+  let decodeToken;
+  try{
+    decodeToken = jwt.verify(authToken, process.env.JWT_SECRET);
+  }catch(err){
+    return res.render("signupValidateOtp.ejs",{
+      error:"Invalid or expired token"
+    })
+  }
+  
+  const isOtpValid = bcrypt.compareSync(otp, decodeToken.hashedOtp);
+  if (!isOtpValid) {
+    return res.render("signupValidateOtp.ejs", {
+      error: "Invalid OTP"
+    });
+  }
+  // OTP is valid, proceed with signup
+  await User.create({
+    username: decodeToken.username,
+    email: decodeToken.email,
+    password: decodeToken.password,
+    profile: decodeToken.profile
+  });
+  return res.redirect('/');}
+  catch(err){
+    logger.error('Error during OTP validation: ' + err.message);
+    return res.status(500).json({error: "Internal server error"});
+  }
+}
+
 
 
 async function handleUserLogin(req, res) {
@@ -44,20 +103,19 @@ async function handleUserLogin(req, res) {
   return res.redirect("/");
   // return res.json({token});
 }
-let otpStore = { email: null, otp: null };
 
-// Function to generate a 4-digit OTP
-function generateOtp() {
-  return Math.floor(1000 + Math.random() * 9000).toString();
-}
+
 
 async function handleForgotPassword(req, res) {
+  try{
   const { email } = req.body;
   const user = await User.findOne({ email });
 
 
   if (!user) {
+    logger.error(`Password reset requested for non-existent email: ${email}`);
     return res.status(200).json({ message: "wrong email." });
+
   }
 
   // 1. Generate a simple 6-digit OTP
@@ -92,9 +150,13 @@ async function handleForgotPassword(req, res) {
   // console.log(`Generated OTP for ${user.email}: ${otp}`); 
 
   res.render("verifyotp",{email: user.email}); // Show OTP entry form
+}catch(err){
+  logger.error('Error during forgot password process: ' + err.message);
+  return res.status(500).json({error: "Internal server error"});}
 }
 
 async function handleVerifyOtp(req, res) {
+  try{
   const { email, otp } = req.body;
   // console.log(otp, otpStore.otp);
 
@@ -114,7 +176,10 @@ async function handleVerifyOtp(req, res) {
             { expiresIn: '10m' }  // Token expires in 10 minutes
         );
         res.render("resetpassword",{authToken: authToken})
-}
+}catch(err){
+  logger.error('Error during OTP verification: ' + err.message);
+  return res.status(500).json({error: "Internal server error"});
+}}
 
 async function handleResetPassword(req, res) {
   const { password, confirmPassword , authToken} = req.body;
@@ -151,4 +216,4 @@ async function handleResetPassword(req, res) {
 
   res.send("Password updated successfully! You can now log in.");
 }
-module.exports = { handleUserSignup, handleUserLogin, handleForgotPassword, handleVerifyOtp, handleResetPassword }
+module.exports = { handleUserSignup, handleUserLogin, handleForgotPassword, handleVerifyOtp, handleResetPassword, handleSignupValidateOTP };
