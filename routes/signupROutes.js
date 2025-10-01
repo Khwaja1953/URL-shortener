@@ -3,6 +3,7 @@ const { handleUserSignup, handleUserLogin, handleForgotPassword, handleVerifyOtp
 const router = express.Router();
 const multer = require("multer");
 // const upload = multer({ dest: './uploads' });
+
 const storage = multer.diskStorage({
 
      destination:function (req, file, cb){
@@ -13,7 +14,8 @@ const storage = multer.diskStorage({
         cb(null, Date.now()+ file.originalname)
      }
 })
-const upload = multer({storage})
+// const upload = multer({storage})
+const upload = multer({ storage: multer.memoryStorage(),limits: { fileSize: 100 * 1024 }, });
 
 router.post('/createuser',upload.single('profileImage'), handleUserSignup);
 router.post('/loginuser', handleUserLogin)

@@ -16,3 +16,15 @@
 {"level":"info","message":"Application starting...","service":"user-service"}
 {"level":"info","message":"Application starting...","service":"user-service"}
 {"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during user signup: Cannot read properties of undefined (reading 'toString')","service":"user-service"}
+{"level":"warn","message":"warning in singup Cannot read properties of undefined (reading 'toString')","service":"user-service","stack":"TypeError: Cannot read properties of undefined (reading 'toString')\n    at handleUserSignup (C:\\Users\\khwaj\\Desktop\\projects\\URL shortener\\controller\\signupController.js:49:37)\n    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}

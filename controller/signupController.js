@@ -5,17 +5,24 @@ require('dotenv').config();
 const { setUser } = require("../services/auth");
 const jwt = require('jsonwebtoken');
 const logger = require('../services/log');
+const multer = require("multer");
+const fs = require("fs");
+const path = require("path");
 
 
 
 async function handleUserSignup(req, res) {
 try{
-  const { username, email } = req.body;
-  const profile = req.file.filename;
-  // console.log(req.file);
-  if (!username  || !email || !profile) {
+  const { username, email, password } = req.body;
+  // const profile = req.file.filename;
+  // console.log(profile,username,email,password);
+  if (!username  || !email || !req.file || !password) {
     return res.status(400).json({ error: "All fields are required" });
   }
+  const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username or Email already exists" });
+    }
   const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
@@ -26,17 +33,29 @@ try{
   },
 });
 let otp = Math.floor(1000 + Math.random() * 9000).toString();
-const info = await transporter.sendMail({
+ await transporter.sendMail({
     from: process.env.EMAIL_USER, // sender address
     to: email,
     subject: "OTP for password Reset",
     text: `your otp is ${otp} please dont share it with anyone`, // plain‑text body
     
   });
-    const salt = bcrypt.genSaltSync(10);
-  const password = bcrypt.hashSync(req.body.password, salt);
+
+  const salt = bcrypt.genSaltSync(10);
+  const hashedPassword = bcrypt.hashSync(password, salt);
   const hashedOtp = bcrypt.hashSync(otp, 10);
-  const authToken = jwt.sign({username,email,password,profile,hashedOtp},process.env.JWT_SECRET,{expiresIn:"10m"});
+   const authToken = jwt.sign(
+      {
+        username,
+        email,
+        password: hashedPassword,
+        fileBuffer: req.file.buffer.toString("base64"), // keep file in token
+        originalName: req.file.originalname,
+        hashedOtp,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "10m" }
+    );
   return res.render("signupValidateOtp.ejs",{authToken: authToken});
 }catch(err){
   logger.error('Error during user signup: ' + err.message);
@@ -70,6 +89,17 @@ async function handleSignupValidateOTP(req,res){
       error: "Invalid OTP"
     });
   }
+  const uploadsDir = path.join(__dirname, "../uploads");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir);
+    }
+
+    const fileName = Date.now() + "-" + decodeToken.originalName;
+    const filePath = path.join(uploadsDir, fileName);
+
+    fs.writeFileSync(filePath, Buffer.from(decodeToken.fileBuffer, "base64"));
+
+  
   // OTP is valid, proceed with signup
   await User.create({
     username: decodeToken.username,
