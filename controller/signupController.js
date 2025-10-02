@@ -16,7 +16,7 @@ try{
   const { username, email, password } = req.body;
   // const profile = req.file.filename;
   // console.log(profile,username,email,password);
-  if (!username  || !email || !req.file || !password) {
+  if (!username  || !email || !password) {
     return res.render('Signup',{UsernameError:"all feilds are required"});
   }
   const existingUser = await User.findOne({ $or: [{ username }, { email }] });
@@ -51,8 +51,8 @@ console.log(otp);
         username,
         email,
         password: hashedPassword,
-        fileBuffer: req.file.buffer.toString("base64"), // keep file in token
-        originalName: req.file.originalname,
+        // fileBuffer: req.file.buffer.toString("base64"), // keep file in token
+        // originalName: req.file.originalname,
         hashedOtp,
       },
       process.env.JWT_SECRET,

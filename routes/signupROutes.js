@@ -16,8 +16,9 @@ const storage = multer.diskStorage({
 })
 // const upload = multer({storage})
 const upload = multer({ storage: multer.memoryStorage(),limits: { fileSize: 100 * 1024 }, });
+// ,upload.single('profileImage')
 
-router.post('/createuser',upload.single('profileImage'), handleUserSignup);
+router.post('/createuser', handleUserSignup);
 router.post('/loginuser', handleUserLogin)
 router.post('/forgotpassword', handleForgotPassword)
 router.post('/verifyotp', handleVerifyOtp);
