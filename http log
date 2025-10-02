@@ -73,3 +73,12 @@
 {"level":"info","message":"Application starting...","service":"user-service"}
 {"level":"error","message":"Error during user signup: Cannot destructure property 'username' of 'req.body' as it is undefined.","service":"user-service"}
 {"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during user signup: connect ETIMEDOUT 52.220.95.193:587","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during user signup: Forbidden","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during user signup: Forbidden","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during user signup: Bad Request","service":"user-service"}
