@@ -59,7 +59,7 @@ router.get('/',restrictTo(["NORMAL","ADMIN"]), async (req, res) => {
 
 
 router.get('/signup', (req, res) => {
-    return res.render('Signup',{UsernameError: null});
+    return res.render('signup',{UsernameError: null});
 })
 router.get('/login', (req, res) => {
     return res.render('login',{error: null});
