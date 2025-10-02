@@ -68,3 +68,8 @@
 {"level":"error","message":"Password reset requested for non-existent email: tikhw418@gmail.c","service":"user-service"}
 {"level":"info","message":"Application starting...","service":"user-service"}
 {"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during user signup: Cannot destructure property 'username' of 'req.body' as it is undefined.","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"error","message":"Error during user signup: Cannot destructure property 'username' of 'req.body' as it is undefined.","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
