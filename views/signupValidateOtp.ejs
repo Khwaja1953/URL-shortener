@@ -6,6 +6,13 @@
     <title>signup using OTP</title>
 </head>
 <body>
+
+    <p style="color: red;">
+  <% if (error) { %>
+    <%= error %>
+  <% } %>
+</p>
+
     <form action="/user/signup/verify-otp" method="POST">
         <input type="hidden" name="authToken" value="<%= authToken %>">
         <label for="otp">Enter OTP:</label>

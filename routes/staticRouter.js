@@ -1,6 +1,7 @@
 const express = require('express');
 const URL = require('../model/urlmodel');
 const { restrictTo } = require('../middlewares/auth');
+const logger = require("../services/log");
 
 const router = express.Router();
 router.get('/admin/urls',restrictTo("ADMIN"),async (req, res) => {
@@ -37,6 +38,7 @@ router.get('/',restrictTo(["NORMAL","ADMIN"]), async (req, res) => {
         // Send a response only once
         return res.render("home", {
             url: allUrls,
+            error: null
 
         });
 
@@ -45,23 +47,25 @@ router.get('/',restrictTo(["NORMAL","ADMIN"]), async (req, res) => {
 
     } catch (error) {
         console.error("Error fetching URLs:", error);
+        logger.error('Error during url fetching: ' + err.message);
 
         return res.status(500).json({
             message: 'Error fetching URLs',
-            error: error.message  // safer than sending full error object
+            error: error.message , // safer than sending full error object
+           
         });
     }
 });
 
 
 router.get('/signup', (req, res) => {
-    return res.render('Signup');
+    return res.render('Signup',{UsernameError: null});
 })
 router.get('/login', (req, res) => {
-    return res.render('login');
+    return res.render('login',{error: null});
 });
 router.get('/forgotpassword', (req, res) => {
-    return res.render('forgotpassword');
+    return res.render('forgotpassword',{error: null});
 });
 router.get('/resetpassword', (req, res) => {
     return res.render('resetpassword');

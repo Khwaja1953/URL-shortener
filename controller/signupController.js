@@ -17,11 +17,12 @@ try{
   // const profile = req.file.filename;
   // console.log(profile,username,email,password);
   if (!username  || !email || !req.file || !password) {
-    return res.status(400).json({ error: "All fields are required" });
+    return res.render('Signup',{UsernameError:"all feilds are required"});
   }
   const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
-      return res.status(400).json({ error: "Username or Email already exists" });
+      // return res.status(400).json({ error: "Username or Email already exists" });
+      return res.render('Signup',{UsernameError: "username or email already exists"});
     }
   const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -33,6 +34,7 @@ try{
   },
 });
 let otp = Math.floor(1000 + Math.random() * 9000).toString();
+console.log(otp);
  await transporter.sendMail({
     from: process.env.EMAIL_USER, // sender address
     to: email,
@@ -56,11 +58,10 @@ let otp = Math.floor(1000 + Math.random() * 9000).toString();
       process.env.JWT_SECRET,
       { expiresIn: "10m" }
     );
-  return res.render("signupValidateOtp.ejs",{authToken: authToken});
+  return res.render("signupValidateOtp.ejs",{authToken: authToken,error:null});
 }catch(err){
   logger.error('Error during user signup: ' + err.message);
-  logger.warn("warning in singup", err)
-  return res.status(500).json({error: "Internal server error"});
+  return res.status(500).json({error: "Internal server error we will resolve it as soon as possible"});
 }
 }
 
@@ -71,6 +72,7 @@ async function handleSignupValidateOTP(req,res){
   // console.log(OTP)
   if(!otp || !authToken){
     return res.render("signupValidateOtp.ejs",{
+      authToken: authToken,
       error:"OTP and AuthToken are required"
     })
   }
@@ -79,6 +81,7 @@ async function handleSignupValidateOTP(req,res){
     decodeToken = jwt.verify(authToken, process.env.JWT_SECRET);
   }catch(err){
     return res.render("signupValidateOtp.ejs",{
+      authToken, authToken,
       error:"Invalid or expired token"
     })
   }
@@ -86,6 +89,7 @@ async function handleSignupValidateOTP(req,res){
   const isOtpValid = bcrypt.compareSync(otp, decodeToken.hashedOtp);
   if (!isOtpValid) {
     return res.render("signupValidateOtp.ejs", {
+      authToken: authToken,
       error: "Invalid OTP"
     });
   }
@@ -110,7 +114,7 @@ async function handleSignupValidateOTP(req,res){
   return res.redirect('/');}
   catch(err){
     logger.error('Error during OTP validation: ' + err.message);
-    return res.status(500).json({error: "Internal server error"});
+    return res.status(500).json({error: "Internal server error we will solve it as soon as possible "});
   }
 }
 
@@ -118,6 +122,9 @@ async function handleSignupValidateOTP(req,res){
 
 async function handleUserLogin(req, res) {
   const { username, password } = req.body;
+  if (!username || !password){
+    res.render('login',{ error: " all feilds are required"})
+  }
   // console.log(username, password);
   const user = await User.findOne({ username });
 
@@ -144,7 +151,7 @@ async function handleForgotPassword(req, res) {
 
   if (!user) {
     logger.error(`Password reset requested for non-existent email: ${email}`);
-    return res.status(200).json({ message: "wrong email." });
+    return res.render('forgotpassword',{ error: "wrong email." });
 
   }
 
@@ -170,7 +177,7 @@ async function handleForgotPassword(req, res) {
     },
   });
 
-  const info = await transporter.sendMail({
+   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: user.email,
     subject: "OTP for password reset",
@@ -182,7 +189,7 @@ async function handleForgotPassword(req, res) {
   res.render("verifyotp",{email: user.email}); // Show OTP entry form
 }catch(err){
   logger.error('Error during forgot password process: ' + err.message);
-  return res.status(500).json({error: "Internal server error"});}
+  return res.status(500).json({error: "Internal server error we will solve it as soon as possible"});}
 }
 
 async function handleVerifyOtp(req, res) {
