@@ -224,7 +224,7 @@ async function handleVerifyOtp(req, res) {
             process.env.JWT_SECRET,
             { expiresIn: '10m' }  // Token expires in 10 minutes
         );
-        res.render("resetpassword",{authToken: authToken, error: null})
+        res.render("resetpassword",{authToken: authToken})
 }catch(err){
   logger.error('Error during OTP verification: ' + err.message);
   return res.status(500).json({error: "Internal server error"});
