@@ -67,3 +67,4 @@
 {"level":"info","message":"Application starting...","service":"user-service"}
 {"level":"error","message":"Password reset requested for non-existent email: tikhw418@gmail.c","service":"user-service"}
 {"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
