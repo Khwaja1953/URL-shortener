@@ -17,12 +17,12 @@ try{
   // const profile = req.file.filename;
   // console.log(profile,username,email,password);
   if (!username  || !email || !password) {
-    return res.render('Signup',{UsernameError:"all feilds are required"});
+    return res.render('signup',{UsernameError:"all feilds are required"});
   }
   const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
       // return res.status(400).json({ error: "Username or Email already exists" });
-      return res.render('Signup',{UsernameError: "username or email already exists"});
+      return res.render('signup',{UsernameError: "username or email already exists"});
     }
   const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
@@ -35,13 +35,14 @@ try{
 });
 let otp = Math.floor(1000 + Math.random() * 9000).toString();
 console.log(otp);
- await transporter.sendMail({
+ const info = await transporter.sendMail({
     from: process.env.EMAIL_USER, // sender address
     to: email,
     subject: "OTP for password Reset",
     text: `your otp is ${otp} please dont share it with anyone`, // plain‑text body
     
   });
+  console.log(info);
 
   const salt = bcrypt.genSaltSync(10);
   const hashedPassword = bcrypt.hashSync(password, salt);
@@ -61,6 +62,7 @@ console.log(otp);
   return res.render("signupValidateOtp.ejs",{authToken: authToken,error:null});
 }catch(err){
   logger.error('Error during user signup: ' + err.message);
+  console.log("error in catch ",err);
   return res.status(500).json({error: "Internal server error we will resolve it as soon as possible"});
 }
 }
