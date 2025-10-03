@@ -146,6 +146,11 @@ async function handleUserLogin(req, res) {
 async function handleForgotPassword(req, res) {
   try{
   const { email } = req.body;
+  if(!email){
+    return res.render("forgotpassword",{
+      error:"Email is required"
+    })
+  }
   const user = await User.findOne({ email });
 
 
@@ -186,7 +191,7 @@ async function handleForgotPassword(req, res) {
 
   // console.log(`Generated OTP for ${user.email}: ${otp}`); 
 
-  res.render("verifyotp",{email: user.email}); // Show OTP entry form
+  res.render("verifyotp",{email: user.email,error:null}); // Show OTP entry form
 }catch(err){
   logger.error('Error during forgot password process: ' + err.message);
   return res.status(500).json({error: "Internal server error we will solve it as soon as possible"});}
@@ -196,6 +201,12 @@ async function handleVerifyOtp(req, res) {
   try{
   const { email, otp } = req.body;
   // console.log(otp, otpStore.otp);
+   if(!otp || !email){
+      return res.render("verifyotp",{
+        error:"OTP and Email are required",
+        email: email
+      })
+    }
 
  const user = await User.findOne({
             email,
@@ -203,9 +214,11 @@ async function handleVerifyOtp(req, res) {
             passwordResetExpires: { $gt: Date.now() } // Check if the token is not expired
         });
 
-         if (!user) {
-            return res.status(400).json({ error: "Invalid or expired reset code." });
-        }
+         if (!user){
+    return res.render("verifyotp",{
+      error:"Invalid OTP or OTP expired",
+      email: email
+    })}
 
   const authToken = jwt.sign(
             { userId: user._id }, // Payload includes user's ID
@@ -220,9 +233,19 @@ async function handleVerifyOtp(req, res) {
 
 async function handleResetPassword(req, res) {
   const { password, confirmPassword , authToken} = req.body;
+  if(!password || !confirmPassword || !authToken){
+      return res.render("resetpassword",{
+        error:"All fields are required",
+        authToken: authToken
+      })
+    
+    }
 
-  if (password !== confirmPassword) {
-    return res.status(400).send("Passwords do not match");
+ if(password !== confirmPassword){
+    return res.render("resetpassword",{
+      error:"Passwords do not match",
+      authToken: authToken
+    })
   }
 
   let decodedToken;
@@ -232,14 +255,18 @@ async function handleResetPassword(req, res) {
         } catch (err) {
             // If the token is invalid or expired, the user must start over
             return res.status(400).render('forgot-password', {
-                error: 'Your password reset link is invalid or has expired. Please request a new one.'
+                error: 'Your password reset link is invalid or has expired. Please request a new one.',
+                authToken: authToken
             });
         }
 
         const user = await User.findById(decodedToken.userId);
-        if (!user) {
-            return res.status(404).send('User not found.');
-        }
+        if (!user){
+    return res.render("resetpassword",{
+      error:"Invalid or expired token",
+      authToken: authToken
+    })
+  }
 
   
 

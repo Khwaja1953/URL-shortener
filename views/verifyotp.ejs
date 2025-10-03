@@ -6,6 +6,11 @@
     <title>Document</title>
 </head>
 <body>
+    <p style="color: red;">
+  <% if (error) { %>
+    <%= error %>
+  <% } %>
+</p>
     <p>We've sent a 6-digit code to <%= email %>. The code expires in 10 minutes.</p>
     <form action="/user/verifyotp" method="POST">
         <input type="hidden" name="email" value="<%= email %>">
