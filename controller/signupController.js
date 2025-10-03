@@ -8,62 +8,74 @@ const logger = require('../services/log');
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
-
+const sgTransport = require("nodemailer-sendgrid");
 
 
 async function handleUserSignup(req, res) {
-try{
-  const { username, email, password } = req.body;
-  // const profile = req.file.filename;
-  // console.log(profile,username,email,password);
-  if (!username  || !email || !req.file || !password) {
-    return res.render('Signup',{UsernameError:"all feilds are required"});
-  }
-  const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-    if (existingUser) {
-      // return res.status(400).json({ error: "Username or Email already exists" });
-      return res.render('Signup',{UsernameError: "username or email already exists"});
-    }
-  const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-let otp = Math.floor(1000 + Math.random() * 9000).toString();
-console.log(otp);
- await transporter.sendMail({
-    from: process.env.EMAIL_USER, // sender address
-    to: email,
-    subject: "OTP for password Reset",
-    text: `your otp is ${otp} please dont share it with anyone`, // plain‑text body
-    
-  });
+  try {
+    const { username, email, password } = req.body;
 
-  const salt = bcrypt.genSaltSync(10);
-  const hashedPassword = bcrypt.hashSync(password, salt);
-  const hashedOtp = bcrypt.hashSync(otp, 10);
-   const authToken = jwt.sign(
+    // ✅ Step 1: Validate required fields
+    if (!username || !email || !password) {
+      return res.render("signup", { UsernameError: "All fields are required" });
+    }
+
+    // ✅ Step 2: Check if user already exists
+    const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+    if (existingUser) {
+      return res.render("signup", { UsernameError: "Username or Email already exists" });
+    }
+
+    // ✅ Step 3: Configure SendGrid Transporter
+    const transporter = nodemailer.createTransport(
+      sgTransport({
+        apiKey: process.env.SENDGRID_API_KEY, // use API key instead of user/pass
+      })
+    );
+
+    // ✅ Step 4: Generate OTP
+    let otp = Math.floor(1000 + Math.random() * 9000).toString();
+    console.log("Generated OTP:", otp);
+
+    // ✅ Step 5: Send OTP email
+    const info = await transporter.sendMail({
+      from: process.env.FROM_EMAIL, // must be verified in SendGrid
+      to: email,
+      subject: "OTP for Account Verification",
+      text: `Your OTP is ${otp}. Please do not share it with anyone.`,
+    });
+
+    console.log("Email sent:", info);
+
+    // ✅ Step 6: Hash password and OTP
+    const salt = bcrypt.genSaltSync(10);
+    const hashedPassword = bcrypt.hashSync(password, salt);
+    const hashedOtp = bcrypt.hashSync(otp, 10);
+
+    // ✅ Step 7: Create authToken with user details + hashed OTP
+    const authToken = jwt.sign(
       {
         username,
         email,
         password: hashedPassword,
-        fileBuffer: req.file.buffer.toString("base64"), // keep file in token
-        originalName: req.file.originalname,
         hashedOtp,
       },
       process.env.JWT_SECRET,
       { expiresIn: "10m" }
     );
-  return res.render("signupValidateOtp.ejs",{authToken: authToken,error:null});
-}catch(err){
-  logger.error('Error during user signup: ' + err.message);
-  return res.status(500).json({error: "Internal server error we will resolve it as soon as possible"});
+
+    // ✅ Step 8: Render OTP validation page
+    return res.render("signupValidateOtp.ejs", { authToken: authToken, error: null });
+
+  } catch (err) {
+    logger.error("Error during user signup: " + err.message);
+    console.error("error in catch:", err);
+    return res.status(500).json({
+      error: "Internal server error. Please try again later.",
+    });
+  }
 }
-}
+
 
 
 async function handleSignupValidateOTP(req,res){
@@ -225,7 +237,7 @@ async function handleVerifyOtp(req, res) {
             process.env.JWT_SECRET,
             { expiresIn: '10m' }  // Token expires in 10 minutes
         );
-        res.render("resetpassword",{authToken: authToken, error: null})
+        res.render("resetpassword",{authToken: authToken})
 }catch(err){
   logger.error('Error during OTP verification: ' + err.message);
   return res.status(500).json({error: "Internal server error"});

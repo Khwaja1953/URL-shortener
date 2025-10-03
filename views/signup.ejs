@@ -20,8 +20,8 @@
     <%= UsernameError %>
   <% } %>
 </p>
-
-    <form action="/user/createuser" method="post" enctype="multipart/form-data">
+<!-- enctype="multipart/form-data" -->
+    <form action="/user/createuser" method="post" >
         <label>Username</label>
         <input type="text" required name="username">
         <label>Email</label>
