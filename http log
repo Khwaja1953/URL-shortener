@@ -87,3 +87,12 @@
 {"level":"info","message":"Application starting...","service":"user-service"}
 {"level":"error","message":"Error during user signup: Bad Request","service":"user-service"}
 >>>>>>> bc5f14701223c16671ed67c04b813c59e341a8f7
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}
+{"level":"info","message":"Application starting...","service":"user-service"}

@@ -10,6 +10,7 @@ const { checkAuthentication,restrictTo} = require("./middlewares/auth");
 const logger = require('./services/log');
 const morgan = require('morgan');
 const fs = require('fs');
+const cors = require('cors')
 
 
 
@@ -30,6 +31,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser()); // required for form parsing
 app.use(checkAuthentication);
+app.use(cors());
 
 const logDirectory = path.join(__dirname, 'log');
 fs.existsSync(logDirectory) || fs.mkdirSync(logDirectory);
@@ -39,7 +41,10 @@ const fileLoggerMiddleware = morgan('Method- :method URL- :url Status- :status R
 app.use(fileLoggerMiddleware);
 
 app.use("/user", signUproutes,);
-
+// app.post("/url", (req, res) => {
+//   console.log("Received URL:", req.body.url);
+//   res.json({ message: "URL received successfully", data: req.body.url });
+// });
 app.use("/url",restrictTo(["NORMAL","ADMIN"]),urlRoute);
 app.use("/", staticRoute);
 
